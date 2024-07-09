@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import userRoutes from './routes/userRoutes.js'
 
 dotenv.config();
 
@@ -12,6 +13,8 @@ const baseURL = process.env.BASE_URL_BACKEND || 'http://localhost';
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+app.use('/api/users', userRoutes);
 
 // Middleware for handling errors
 app.use(notFound);
