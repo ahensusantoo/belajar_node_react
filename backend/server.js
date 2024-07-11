@@ -1,26 +1,30 @@
-import express from 'express';
+// server.js
+import express from 'express'
 import dotenv from 'dotenv';
-import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import userRoutes from './routes/userRoutes.js'
+import { connectDb } from './app/database.js';  // Perhatikan perubahan di sini
+import { notFound, errorHandler, trimMiddleware } from './middleware/errorMiddleware.js';
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 
+connectDb();  // Panggil fungsi connectDb untuk menginisialisasi koneksi database
+
 const app = express();
 const port = process.env.PORT || 8000;
-const baseURL = process.env.BASE_URL_BACKEND || 'http://localhost';
 
-// Define a route
+app.use(trimMiddleware);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
 app.use('/api/users', userRoutes);
 
-// Middleware for handling errors
 app.use(notFound);
 app.use(errorHandler);
 
-// Start the server
-app.listen(port, baseURL,() => {
-  console.log(`Server is listening on ${baseURL}:${port}`);
+app.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
 });
