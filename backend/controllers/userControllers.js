@@ -50,11 +50,20 @@ const validateUser = (isUpdate = false) => {
 const getUsers = asyncHandler(async (req, res, next) => {
     const users = await UserModel.getAllUsers();
     if (users) {
-        res.status(200).json(users);
+        res.status(200).json({
+            statusCode: 200,
+            message: {
+                label_message: 'all users',
+                validasi_data: null
+            },
+            data: users,
+            stack: null
+        });
     } else {
-        const error = new Error('Data users tidak ditemukan');
-        error.status = 404; // Atur status kode error
-        throw error; // Lempar error untuk ditangkap oleh errorHandler
+        throw throw_error(
+            404,
+            'Tidak ada data',
+        );
     }
 });
 
@@ -65,11 +74,20 @@ const detailUser = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const users = await UserModel.getUserById(id);
     if (users) {
-        res.status(200).json(users);
+        res.status(200).json({
+            statusCode: 200,
+            message: {
+                label_message: 'all users',
+                validasi_data: null
+            },
+            data: users,
+            stack: null
+        });
     } else {
-        const error = new Error('Data users tidak ditemukan');
-        error.status = 404; // Atur status kode error
-        throw error; // Lempar error untuk ditangkap oleh errorHandler
+        throw throw_error(
+            404,
+            'Data tidak ditemukan',
+        );
     }
 });
 
@@ -165,19 +183,30 @@ const updateUser = asyncHandler(async (req, res) => {
 // @access Public
 const deleteUser = asyncHandler(async (req, res) => {
     const { id } = req.params;
-
-    try {
-        const user = await User.findByPk(id);
-
-        if (user) {
-            await user.destroy();
-            res.json({ message: 'Pengguna berhasil dihapus' });
-        } else {
-            res.status(404).json({ message: 'Pengguna tidak ditemukan' });
+    const users = await UserModel.getUserById(id);
+    if(users){
+        const deleteUser = await UserModel.deleteUser(id);
+        if(deleteUser){
+            res.status(200).json({
+                statusCode : 200,
+                message : {
+                    label_message : 'Data berhasil di hapus',
+                    validasi_data : null
+                },
+                data : deleteUser,
+                stack : null
+            });
+        }else{
+            throw throw_error(
+                500,
+                'Kesalahan system, silahkan coba kembali'
+            ); 
         }
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Gagal menghapus pengguna' });
+    }else{
+        throw throw_error(
+            404,
+            'Data tidak ditemukan'
+        );
     }
 });
 
